@@ -8,17 +8,18 @@ An interactive, AI-powered software system design generator that transforms high
 
 ## 📖 Table of Contents
 1. [Key Features](#-key-features)
-2. [Project Architecture Flow](#-project-architecture-flow)
-3. [Tech Stack](#-tech-stack)
-4. [Getting Started](#-getting-started)
+2. [Security & Key Privacy](#-security--key-privacy)
+3. [Project Architecture Flow](#-project-architecture-flow)
+4. [Tech Stack](#-tech-stack)
+5. [Getting Started](#-getting-started)
    - [Prerequisites](#prerequisites)
    - [Installation](#installation)
    - [Environment Variables](#environment-variables)
    - [Running Locally](#running-locally)
    - [Building for Production](#building-for-production)
-5. [How to Use](#-how-to-use)
-6. [Blueprint Specifications](#-blueprint-specifications)
-7. [Contributing & License](#-contributing--license)
+6. [How to Use](#-how-to-use)
+7. [Blueprint Specifications](#-blueprint-specifications)
+8. [Contributing & License](#-contributing--license)
 
 ---
 
@@ -31,6 +32,15 @@ An interactive, AI-powered software system design generator that transforms high
 - **📋 Schema-verified Structuring**: Leverages Zod schema validation to ensure the LLM's response matches a strict structural contract with zero empty arrays or missing descriptions.
 - **💾 One-Click Markdown Export**: Downloader feature that converts the entire generated system architecture blueprint into a clean, fully formatted markdown document for easy integration with your project documentation.
 - **🎨 Premium Dark Aesthetics**: Designed with a sleek, minimalist Vercel-like dark theme using Tailwind CSS v4, custom grid backgrounds, subtle glow effects, and Framer Motion animations.
+
+---
+
+## 🔒 Security & Key Privacy
+
+We treat developer security and key privacy as a priority:
+- **Zero Server Storage**: Your Gemini API Key is stored exclusively in your local browser's `localStorage` (via the BYOK setup in the navigation bar).
+- **Direct & Secure Transit**: The key is transmitted over secure TLS (HTTPS) headers directly to the backend proxy route, which forwards it to the Google Gemini API. It is never logged, stored, or indexed on our systems or the server.
+- **Complete User Control**: You can clear or update your key at any time directly through the UI input field in the top navigation bar.
 
 ---
 

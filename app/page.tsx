@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { Lock } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import EmptyState from "@/components/EmptyState";
 import PromptInput from "@/components/prompt-input";
@@ -323,6 +324,12 @@ export default function Home() {
             onSubmit={handleGenerate} 
             loading={state === "LOADING"} 
           />
+          <div className="flex items-center justify-center gap-1.5 text-xs text-zinc-500 pt-1">
+            <Lock className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
+            <span>
+              Your API Key is secure. It is saved only in your local browser and sent directly to Gemini via HTTPS. We never save or log your keys.
+            </span>
+          </div>
         </section>
 
         {/* Main Workspace Area */}

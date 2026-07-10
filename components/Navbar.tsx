@@ -54,7 +54,7 @@ export default function Navbar({ apiKey, setApiKey }: NavbarProps) {
               onChange={(e) => setApiKey(e.target.value)}
               placeholder="Gemini API Key..."
               className="bg-transparent border-none outline-none text-xs text-zinc-200 placeholder-zinc-650 w-full focus:ring-0 focus:outline-none"
-              title="Bring Your Own Key (Optional). Stored locally in your browser."
+              title="Your API key is stored locally in your browser's localStorage and is sent directly via request headers. It is never logged, stored, or processed on our backend."
             />
             {apiKey && (
               <button

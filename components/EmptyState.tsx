@@ -64,8 +64,8 @@ export default function EmptyState() {
 
         {/* Prompt Cue Footer */}
         <div className="mt-8 flex items-center justify-center gap-2 text-xs text-zinc-500">
-          <Lock className="h-3 w-3" />
-          <span>Local Simulation. No API keys or credit cards required.</span>
+          <Lock className="h-3.5 w-3.5 text-indigo-400" />
+          <span>Your API keys are completely secure. They are stored only in your local browser (localStorage) and never saved or logged on the server.</span>
         </div>
       </div>
     </div>
