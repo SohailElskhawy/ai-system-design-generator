@@ -86,12 +86,16 @@ npm install
 ```
 
 ### Environment Variables
-Create a `.env` file in the root directory (or rename the existing one) and configure the following environment variables:
+Copy the `.env-example` file to create a `.env` file in the root directory:
+```bash
+cp .env-example .env
+```
+And configure the variables inside `.env`:
 ```env
-# Google Gemini API Key (Required for backend-managed generation)
+# Google Gemini API Key
 GOOGLE_API_KEY=your_gemini_api_key_here
 
-# Targeted Gemini Model (Optional, defaults to gemini-2.5-flash / gemini-3.5-flash)
+# Targeted Gemini Model (Optional)
 GOOGLE_MODEL=gemini-3.5-flash
 ```
 
