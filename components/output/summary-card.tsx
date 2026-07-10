@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FileText, Cpu, Clock, DollarSign, Database, Download, RotateCcw } from "lucide-react";
+import { FileText, Cpu, Clock, DollarSign, Database} from "lucide-react";
 import { ProjectSummary } from "@/types";
 import SectionHeader from "./SectionHeader";
 
@@ -87,26 +87,6 @@ export default function SummaryCard({ summary }: SummaryCardProps) {
               <span className="font-semibold text-zinc-400 block mb-1">Cost Estimations</span>
               <p className="text-zinc-500">{summary.estimatedCost}</p>
             </div>
-          </div>
-
-          {/* Action buttons (Disabled Placeholders) */}
-          <div className="border-t border-zinc-900 pt-5 flex items-center justify-end gap-3 text-xs">
-            <button
-              disabled
-              className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900/30 px-3.5 py-2 font-medium text-zinc-500 cursor-not-allowed"
-              title="Regenerate requires database link (placeholder)"
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-              <span>Regenerate (Disabled)</span>
-            </button>
-            <button
-              disabled
-              className="flex items-center gap-1.5 rounded-lg bg-zinc-900 border border-zinc-850 px-3.5 py-2 font-medium text-zinc-500 cursor-not-allowed"
-              title="Export features coming soon (placeholder)"
-            >
-              <Download className="h-3.5 w-3.5" />
-              <span>Export PDF / MD</span>
-            </button>
           </div>
         </div>
       )}

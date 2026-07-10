@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import EmptyState from "@/components/EmptyState";
 import PromptInput from "@/components/prompt-input";
 import LoadingState from "@/components/loading";
-import { generateMockArchitecture } from "@/lib/mock-data";
 import { SystemArchitectureOutput } from "@/types";
 
 // Import modular cards
@@ -28,19 +27,211 @@ export default function Home() {
   const [output, setOutput] = useState<SystemArchitectureOutput | null>(null);
   const [activeSection, setActiveSection] = useState("summary");
 
+  // API Key (BYOK), error, and generation status states
+  const [apiKey, setApiKey] = useState("");
+  const [isApiComplete, setIsApiComplete] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // References for cross-event synchronization between API promise and progress animation
+  const apiDataRef = useRef<SystemArchitectureOutput | null>(null);
+  const animationDoneRef = useRef(false);
+
+  // Load API key from local storage on mount safely to avoid synchronous cascading renders
+  useEffect(() => {
+    const stored = localStorage.getItem("archai_gemini_api_key");
+    if (stored) {
+      setTimeout(() => {
+        setApiKey(stored);
+      }, 0);
+    }
+  }, []);
+
+  const handleSetApiKey = (val: string) => {
+    setApiKey(val);
+    localStorage.setItem("archai_gemini_api_key", val);
+  };
+
   // Handle generating action
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!prompt.trim()) return;
+
+    setError(null);
+    setOutput(null);
+    setIsApiComplete(false);
+    apiDataRef.current = null;
+    animationDoneRef.current = false;
     setState("LOADING");
+
     // Scroll smoothly to loading area
     window.scrollTo({ top: 0, behavior: "smooth" });
+
+    try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (apiKey.trim()) {
+        headers["x-gemini-api-key"] = apiKey.trim();
+      }
+
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ prompt: prompt.trim() }),
+      });
+
+      if (!response.ok) {
+        const errJson = await response.json().catch(() => ({}));
+        throw new Error(errJson.error || `Generation failed: HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (!data.systemDesign) {
+        throw new Error("Invalid output received from the server.");
+      }
+
+      apiDataRef.current = data.systemDesign;
+      setIsApiComplete(true);
+
+      // If progress animation has already hit 100%, show results immediately
+      if (animationDoneRef.current) {
+        setOutput(data.systemDesign);
+        setState("COMPLETED");
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "An unexpected error occurred while compiling your architecture.";
+      console.error("[Generation API Error]:", err);
+      setError(message);
+      setState("EMPTY");
+      setIsApiComplete(false);
+    }
   };
 
   // Called when LoadingState timer completes
   const handleLoadingComplete = () => {
-    const data = generateMockArchitecture(prompt);
-    setOutput(data);
-    setState("COMPLETED");
+    animationDoneRef.current = true;
+    if (apiDataRef.current) {
+      setOutput(apiDataRef.current);
+      setState("COMPLETED");
+    }
+  };
+
+  // Convert the output JSON structure into a formatted Markdown document and trigger a browser download
+  const handleExportMarkdown = () => {
+    if (!output) return;
+
+    let md = `# Architectural Blueprint: ${output.summary.title}\n\n`;
+    md += `${output.summary.description}\n\n`;
+    md += `## Metadata\n`;
+    md += `- **Complexity**: ${output.summary.complexity}\n`;
+    md += `- **Reading Time**: ${output.summary.readingTime}\n`;
+    md += `- **Target Audience**: ${output.summary.targetAudience}\n`;
+    md += `- **Estimated Infrastructure Cost**: ${output.summary.estimatedCost}\n`;
+    md += `- **Primary Database Strategy**: ${output.summary.primaryDatabase}\n\n`;
+    md += `---\n\n`;
+
+    md += `## 1. Functional Requirements\n`;
+    output.functionalRequirements.forEach((req) => {
+      md += `- ${req}\n`;
+    });
+    md += `\n`;
+
+    md += `## 2. Non-Functional Requirements\n`;
+    output.nonFunctionalRequirements.forEach((req) => {
+      md += `- ${req}\n`;
+    });
+    md += `\n`;
+
+    md += `## 3. System Actors\n`;
+    output.actors.forEach((actor) => {
+      md += `- **${actor.name}** (${actor.role}): ${actor.description}\n`;
+    });
+    md += `\n`;
+
+    md += `## 4. Use Case Flows\n`;
+    output.useCases.forEach((uc) => {
+      md += `- **Actor**: ${uc.actor}\n`;
+      md += `  - **Action**: ${uc.action}\n`;
+      md += `  - **Benefit**: ${uc.benefit}\n`;
+    });
+    md += `\n`;
+
+    md += `## 5. Recommended Technology Stack\n`;
+    output.techStack.forEach((cat) => {
+      md += `### ${cat.category}\n`;
+      cat.technologies.forEach((tech) => {
+        md += `- **${tech.name}**: ${tech.reason}\n`;
+      });
+      md += `\n`;
+    });
+
+    md += `## 6. Database Schema Design\n`;
+    output.databaseDesign.forEach((table) => {
+      md += `### Table: ${table.tableName}\n`;
+      md += `*${table.description}*\n\n`;
+      md += `| Column | Type | Key | Nullable | Description |\n`;
+      md += `| --- | --- | --- | --- | --- |\n`;
+      table.columns.forEach((col) => {
+        md += `| \`${col.name}\` | \`${col.type}\` | ${col.key || "-"} | ${col.nullable ? "YES" : "NO"} | ${col.description} |\n`;
+      });
+      md += `\n`;
+    });
+
+    md += `## 7. REST API Documentation\n`;
+    output.apiEndpoints.forEach((api) => {
+      md += `### \`${api.method} ${api.endpoint}\`\n`;
+      md += `*${api.description}*\n\n`;
+      if (api.requestBody) {
+        md += `**Request Body**:\n\`\`\`json\n${api.requestBody}\n\`\`\`\n\n`;
+      }
+      if (api.responseBody) {
+        md += `**Response Body**:\n\`\`\`json\n${api.responseBody}\n\`\`\`\n\n`;
+      }
+    });
+
+    md += `## 8. System Architecture Diagram\n`;
+    md += `- **Topology Model**: ${output.systemArchitecture.type}\n`;
+    md += `- **Description**: ${output.systemArchitecture.description}\n\n`;
+    md += `### Sequence Flow Topology\n`;
+    md += `\`\`\`\n${output.systemArchitecture.diagramText}\n\`\`\`\n\n`;
+    if (output.systemArchitecture.mermaidDiagram) {
+      md += `### Mermaid Diagram\n`;
+      md += `\`\`\`mermaid\n${output.systemArchitecture.mermaidDiagram}\n\`\`\`\n\n`;
+    }
+
+    md += `## 9. Scalability Strategy\n`;
+    output.scalability.forEach((sc) => {
+      md += `- ${sc}\n`;
+    });
+    md += `\n`;
+
+    md += `## 10. Security & Auditing Controls\n`;
+    output.security.forEach((sec) => {
+      md += `### ${sec.category}\n`;
+      sec.measures.forEach((m) => {
+        md += `- ${m}\n`;
+      });
+      md += `\n`;
+    });
+
+    md += `## 11. Phased Development Roadmap\n`;
+    output.roadmap.forEach((phase) => {
+      md += `### ${phase.phase} (${phase.duration})\n`;
+      phase.tasks.forEach((task) => {
+        md += `- ${task}\n`;
+      });
+      md += `\n`;
+    });
+
+    // Create file and download
+    const blob = new Blob([md], { type: "text/markdown;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    const sanitizedTitle = output.summary.title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    link.setAttribute("download", `${sanitizedTitle}-blueprint.md`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   // Scroll to section handler
@@ -90,7 +281,7 @@ export default function Home() {
       <div className="fixed inset-0 grid-bg pointer-events-none z-0" aria-hidden="true" />
       
       {/* Top Navbar */}
-      <Navbar />
+      <Navbar apiKey={apiKey} setApiKey={handleSetApiKey} />
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 z-10 space-y-10">
         
@@ -109,8 +300,23 @@ export default function Home() {
           </p>
         </section>
 
-        {/* Input Interface */}
-        <section className="max-w-3xl mx-auto w-full">
+        {/* Input Interface & Error Banner */}
+        <section className="max-w-3xl mx-auto w-full space-y-4">
+          {error && (
+            <div className="rounded-lg border border-red-500/25 bg-red-950/20 px-4 py-3 text-xs text-red-400 flex items-center justify-between gap-4 animate-fadeIn">
+              <div className="flex items-center gap-2.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse shrink-0" />
+                <p className="leading-relaxed font-sans">{error}</p>
+              </div>
+              <button 
+                onClick={handleGenerate}
+                className="rounded border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 px-2.5 py-1 font-semibold text-[10px] text-red-300 transition-colors shrink-0 cursor-pointer focus:outline-none"
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
           <PromptInput 
             prompt={prompt} 
             setPrompt={setPrompt} 
@@ -129,7 +335,7 @@ export default function Home() {
 
           {state === "LOADING" && (
             <div className="max-w-xl mx-auto w-full py-12">
-              <LoadingState onComplete={handleLoadingComplete} />
+              <LoadingState onComplete={handleLoadingComplete} isComplete={isApiComplete} />
             </div>
           )}
 
@@ -144,6 +350,7 @@ export default function Home() {
                   complexity: output.summary.complexity,
                   readingTime: output.summary.readingTime
                 }}
+                onExport={handleExportMarkdown}
               />
 
               {/* Scrolling Output Cards Stack */}

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { 
   FileText, CheckSquare, Users, GitCommit, Layers, Database, 
-  Code2, Network, Activity, ShieldAlert, Calendar 
+  Code2, Network, Activity, ShieldAlert, Calendar, Download 
 } from "lucide-react";
 
 interface SidebarNavigationProps {
@@ -11,9 +11,10 @@ interface SidebarNavigationProps {
     complexity: string;
     readingTime: string;
   };
+  onExport: () => void;
 }
 
-export default function SidebarNavigation({ activeId, onNavigate, metadata }: SidebarNavigationProps) {
+export default function SidebarNavigation({ activeId, onNavigate, metadata, onExport }: SidebarNavigationProps) {
   const sections = [
     { id: "summary", label: "Project Summary", icon: <FileText className="h-3.5 w-3.5" /> },
     { id: "requirements", label: "Requirements", icon: <CheckSquare className="h-3.5 w-3.5" /> },
@@ -53,6 +54,15 @@ export default function SidebarNavigation({ activeId, onNavigate, metadata }: Si
             </div>
           </div>
         </div>
+
+        {/* Export Button (BYOK / Blueprint Export) */}
+        <button
+          onClick={onExport}
+          className="w-full flex items-center justify-center gap-2 rounded-lg border border-indigo-500/20 bg-indigo-500/10 hover:bg-indigo-600 hover:text-white text-indigo-400 py-2.5 text-xs font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500/30 cursor-pointer shadow-sm shadow-indigo-500/5"
+        >
+          <Download className="h-4 w-4 shrink-0" />
+          <span>Export Blueprint (.md)</span>
+        </button>
 
         {/* Navigation List */}
         <nav className="flex flex-col gap-0.5" aria-label="Table of Contents">

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Activity, Zap, TrendingUp, Check } from "lucide-react";
+import { Activity, Zap, TrendingUp } from "lucide-react";
 import SectionHeader from "./SectionHeader";
 
 interface ScalabilityCardProps {

@@ -1,60 +1,69 @@
 import React, { useEffect, useState } from "react";
 import { Check, Cpu, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface LoadingStateProps {
   onComplete: () => void;
+  isComplete: boolean;
 }
 
-export default function LoadingState({ onComplete }: LoadingStateProps) {
-  const steps = [
-    { title: "Generating requirements...", subtext: "Compiling functional scope and system actors" },
-    { title: "Designing database...", subtext: "Creating relational tables and indexing bounds" },
-    { title: "Planning APIs...", subtext: "Configuring REST endpoints and schema payloads" },
-    { title: "Thinking about scalability...", subtext: "Sizing caching layers and replicas" },
-    { title: "Creating roadmap...", subtext: "Dividing milestones into weekly sprints" },
-  ];
+// Module-level static constants (resolves react-hooks/exhaustive-deps issues)
+const STEPS = [
+  { title: "Generating requirements...", subtext: "Compiling functional scope and system actors" },
+  { title: "Designing database...", subtext: "Creating relational tables and indexing bounds" },
+  { title: "Planning APIs...", subtext: "Configuring REST endpoints and schema payloads" },
+  { title: "Thinking about scalability...", subtext: "Sizing caching layers and replicas" },
+  { title: "Creating roadmap...", subtext: "Dividing milestones into weekly sprints" },
+];
 
+const LOG_MESSAGES = [
+  "Analyzing prompt vocabulary...",
+  "Extracting system domain model...",
+  "Defining primary actors and personas...",
+  "Validating requirements integrity...",
+  "Drafting database tables...",
+  "Enforcing primary and foreign key constraints...",
+  "Generating SQL schemas...",
+  "Mapping RESTful resources...",
+  "Drafting request/response JSON contracts...",
+  "Sizing Redis caching nodes...",
+  "Calculating load balancer distributions...",
+  "Validating security parameters...",
+  "Structuring development roadmap milestones...",
+  "Compiling system design specifications...",
+];
+
+export default function LoadingState({ onComplete, isComplete }: LoadingStateProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
   const [logs, setLogs] = useState<string[]>(["Initializing ArchAI core engine..."]);
 
-  // Fake technical details that print in the console log stream
-  const logMessages = [
-    "Analyzing prompt vocabulary...",
-    "Extracting system domain model...",
-    "Defining primary actors and personas...",
-    "Validating requirements integrity...",
-    "Drafting database tables...",
-    "Enforcing primary and foreign key constraints...",
-    "Generating SQL schemas...",
-    "Mapping RESTful resources...",
-    "Drafting request/response JSON contracts...",
-    "Sizing Redis caching nodes...",
-    "Calculating load balancer distributions...",
-    "Validating security parameters...",
-    "Structuring development roadmap milestones...",
-    "Compiling system design specifications...",
-  ];
+  // Track latest isComplete state without resetting useEffect intervals
+  const isCompleteRef = React.useRef(isComplete);
+  useEffect(() => {
+    isCompleteRef.current = isComplete;
+  }, [isComplete]);
 
   useEffect(() => {
     // Progress bar speed
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
+        if (prev >= 95 && !isCompleteRef.current) {
+          return 95; // Hold at 95% until Gemini is done
+        }
         if (prev >= 100) {
           clearInterval(progressInterval);
           return 100;
         }
-        return prev + 1;
+        return prev + (isCompleteRef.current ? 5 : 1);
       });
-    }, 50); // 5 seconds total
+    }, 50); // ~5 seconds base loading speed
 
     // Steps timing
     const stepInterval = setInterval(() => {
       setCurrentStep((prev) => {
-        if (prev >= steps.length - 1) {
+        if (prev >= STEPS.length - 1) {
           clearInterval(stepInterval);
-          return steps.length - 1;
+          return STEPS.length - 1;
         }
         return prev + 1;
       });
@@ -62,8 +71,8 @@ export default function LoadingState({ onComplete }: LoadingStateProps) {
 
     // Logs timing
     const logInterval = setInterval(() => {
-      const randomIndex = Math.floor(Math.random() * logMessages.length);
-      setLogs((prev) => [...prev.slice(-4), logMessages[randomIndex]]);
+      const randomIndex = Math.floor(Math.random() * LOG_MESSAGES.length);
+      setLogs((prev) => [...prev.slice(-4), LOG_MESSAGES[randomIndex]]);
     }, 400);
 
     return () => {
@@ -75,9 +84,11 @@ export default function LoadingState({ onComplete }: LoadingStateProps) {
 
   useEffect(() => {
     if (progress === 100) {
+      // Set step and complete asynchronously to prevent synchronous cascading renders warning
       const timer = setTimeout(() => {
+        setCurrentStep(STEPS.length); // Mark the final step checkmark active
         onComplete();
-      }, 500);
+      }, 600);
       return () => clearTimeout(timer);
     }
   }, [progress, onComplete]);
@@ -111,7 +122,7 @@ export default function LoadingState({ onComplete }: LoadingStateProps) {
 
       {/* Checklist Grid */}
       <div className="mt-8 space-y-4">
-        {steps.map((step, index) => {
+        {STEPS.map((step, index) => {
           const isDone = index < currentStep;
           const isActive = index === currentStep;
 
@@ -158,7 +169,7 @@ export default function LoadingState({ onComplete }: LoadingStateProps) {
           <span className="h-2 w-2 rounded-full bg-green-500/50" />
           <span className="ml-1">System Terminal Logs</span>
         </div>
-        <div className="mt-3.5 space-y-1 text-left min-h-[75px]">
+        <div className="mt-3.5 space-y-1 text-left min-h-18.75">
           {logs.map((log, index) => (
             <div key={index} className="flex gap-1.5">
               <span className="text-zinc-700 select-none">&gt;</span>

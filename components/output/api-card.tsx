@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Code2, ChevronRight, ChevronDown, Terminal } from "lucide-react";
+import { Code2, ChevronRight, ChevronDown } from "lucide-react";
 import { ApiEndpoint } from "@/types";
 import SectionHeader from "./SectionHeader";
 

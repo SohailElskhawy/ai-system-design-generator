@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Database, Key, HelpCircle, AlertCircle } from "lucide-react";
+import { Database, Key, AlertCircle } from "lucide-react";
 import { DatabaseTable } from "@/types";
 import SectionHeader from "./SectionHeader";
 

@@ -37,7 +37,7 @@ export default function EmptyState() {
           AI-Powered Software Architecture
         </h2>
         <p className="mt-2 text-sm text-zinc-400">
-          Describe the application you intend to build (e.g. "A booking site like Airbnb" or "An inventory pipeline"). ArchAI will draft full specification blueprints across multiple layers.
+          {"Describe the application you intend to build (e.g. \"A booking site like Airbnb\" or \"An inventory pipeline\"). ArchAI will draft full specification blueprints across multiple layers."}
         </p>
 
         {/* Blueprint Specs Grid */}

@@ -56,6 +56,7 @@ export interface SystemArchitecture {
   type: string;
   diagramText: string;
   description: string;
+  mermaidDiagram?: string;
   nodes: { id: string; label: string; type: "client" | "network" | "compute" | "cache" | "database" }[];
   connections: { from: string; to: string; label?: string }[];
 }
