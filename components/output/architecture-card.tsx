@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import dynamic from "next/dynamic";
 import { 
   Network, Laptop, Globe, ArrowRight, 
   Cpu, HardDrive, Database, Zap 
@@ -6,64 +7,21 @@ import {
 import { SystemArchitecture } from "@/types";
 import SectionHeader from "./SectionHeader";
 
+// Dynamically import the local MermaidRenderer component to avoid SSR hydration issues
+const MermaidRenderer = dynamic(() => import("./MermaidRenderer"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex flex-col items-center justify-center p-8 text-center gap-3 w-full min-h-[150px]">
+      <span className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
+      <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider animate-pulse">
+        Loading Schematic Engine...
+      </span>
+    </div>
+  )
+});
+
 interface ArchitectureCardProps {
   architecture: SystemArchitecture;
-}
-
-/**
- * Visual renderer for Mermaid diagrams.
- * Encodes the diagram string into a base64 state parameter for rendering as an SVG,
- * with a fallback raw text render block if offline or syntactically invalid.
- */
-function MermaidDiagram({ chart }: { chart: string }) {
-  const [error, setError] = useState(false);
-
-  const getMermaidUrl = (code: string) => {
-    try {
-      const state = {
-        code,
-        mermaid: { 
-          theme: "dark",
-          background: "#09090b"
-        }
-      };
-      const json = JSON.stringify(state);
-      // Safely encode to base64 supporting UTF-8 characters
-      const base64 = btoa(unescape(encodeURIComponent(json)));
-      return `https://mermaid.ink/svg/${base64}`;
-    } catch (e) {
-      console.error("Failed to encode mermaid diagram", e);
-      return "";
-    }
-  };
-
-  const url = getMermaidUrl(chart);
-
-  if (error || !url) {
-    return (
-      <div className="rounded-lg border border-zinc-900 bg-zinc-950 p-4 font-mono text-[10px] text-zinc-500 overflow-x-auto">
-        <span className="text-zinc-400 font-semibold block mb-1 uppercase tracking-wider">
-          Mermaid Diagram (Rendering Offline)
-        </span>
-        <pre className="text-zinc-650 leading-normal">{chart}</pre>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col items-center justify-center gap-3 w-full bg-zinc-950/40 p-6 rounded-xl border border-zinc-900 overflow-hidden">
-      <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 font-mono mb-2">
-        System Flow Blueprint (Mermaid Render)
-      </span>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={url}
-        alt="System Flow Diagram"
-        className="max-h-125 object-contain select-none max-w-full filter invert brightness-125"
-        onError={() => setError(true)}
-      />
-    </div>
-  );
 }
 
 export default function ArchitectureCard({ architecture }: ArchitectureCardProps) {
@@ -251,7 +209,7 @@ export default function ArchitectureCard({ architecture }: ArchitectureCardProps
           ) : (
             architecture.mermaidDiagram && (
               <div className="space-y-4 animate-fadeIn">
-                <MermaidDiagram chart={architecture.mermaidDiagram} />
+                <MermaidRenderer chart={architecture.mermaidDiagram} />
                 <div className="rounded-lg border border-zinc-900 bg-zinc-950 p-4 font-mono text-[10px] text-zinc-500">
                   <span className="text-zinc-400 font-semibold block mb-1 uppercase tracking-wider">
                     Mermaid Source Syntax

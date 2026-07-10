@@ -22,8 +22,9 @@ export async function generateSystemDesign(prompt: string, apiKey: string) {
 
     // Ordered sequence of fallback models
     const modelsToTry = Array.from(new Set([
-        process.env.GOOGLE_MODEL || "gemini-3.1-flash-lite",
-        "gemini-3.1-flash-lite",
+        process.env.GOOGLE_MODEL || "gemini-2.5-flash",
+        "gemini-2.5-flash",
+        "gemini-2.0-flash",
         "gemini-2.0-flash-lite"
     ]));
 

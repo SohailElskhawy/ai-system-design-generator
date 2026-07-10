@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Cpu, ExternalLink, Key } from "lucide-react";
+import { Cpu, Key } from "lucide-react";
 
 // Inline SVG for GitHub to guarantee compatibility across bundler versions
 const GithubIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -42,21 +42,6 @@ export default function Navbar({ apiKey, setApiKey }: NavbarProps) {
           </div>
         </div>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-400">
-          <a href="#hero" className="hover:text-zinc-100 transition-colors">
-            Home
-          </a>
-          <a href="https://github.com" target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-zinc-100 transition-colors">
-            Docs <ExternalLink className="h-3 w-3" />
-          </a>
-          <a href="https://github.com" target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-zinc-100 transition-colors">
-            API <ExternalLink className="h-3 w-3" />
-          </a>
-          <a href="https://github.com" target="_blank" rel="noreferrer" className="hover:text-zinc-100 transition-colors">
-            Pricing
-          </a>
-        </nav>
 
         {/* Actions */}
         <div className="flex items-center gap-3">
@@ -83,7 +68,7 @@ export default function Navbar({ apiKey, setApiKey }: NavbarProps) {
           </div>
 
           <a
-            href="https://github.com"
+            href="https://github.com/SohailElskhawy/ai-system-design-generator"
             target="_blank"
             rel="noreferrer"
             className="hidden sm:flex items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-900/50 px-3 py-1.5 text-xs font-medium text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 transition-all focus:outline-none focus:ring-1 focus:ring-zinc-700"
@@ -92,13 +77,6 @@ export default function Navbar({ apiKey, setApiKey }: NavbarProps) {
             <GithubIcon className="h-3.5 w-3.5" />
             <span>Star on GitHub</span>
           </a>
-          <button
-            disabled
-            className="cursor-not-allowed rounded-md bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-500 border border-zinc-700/50"
-            aria-label="Export Blueprint (disabled)"
-          >
-            Deploy
-          </button>
         </div>
       </div>
     </header>

@@ -128,7 +128,7 @@ export default function ApiCard({ apiEndpoints }: ApiCardProps) {
                           <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 font-mono block">
                             Success Response (200 OK)
                           </span>
-                          <div className="relative rounded-md border border-zinc-905 bg-zinc-950/80 p-3.5 font-mono text-[10px] text-indigo-300 overflow-x-auto">
+                          <div className="relative rounded-md border border-zinc-900 bg-zinc-950/80 p-3.5 font-mono text-[10px] text-indigo-300 overflow-x-auto">
                             <pre>{endpoint.responseBody}</pre>
                           </div>
                         </div>

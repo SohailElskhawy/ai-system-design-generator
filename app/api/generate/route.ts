@@ -7,6 +7,46 @@ import { ZodError } from "zod";
  * Validates request input, extracts the optional client-side API key (BYOK),
  * manages size constraints, and handles errors from the Gemini SDK or Zod parser.
  */
+/**
+ * Translates raw Gemini SDK and HTTP errors into clear, user-friendly messages.
+ */
+function translateGeminiError(error: unknown): { message: string; status: number } {
+    const errObj = error as Record<string, unknown> | null | undefined;
+    const status = (errObj && typeof errObj.status === "number") ? errObj.status : 500;
+    const rawMessage = error instanceof Error ? error.message : String(error);
+
+    let friendlyMessage = rawMessage;
+
+    // Quota limits / Rate limits (429)
+    if (
+        status === 429 || 
+        rawMessage.toLowerCase().includes("quota") || 
+        rawMessage.toLowerCase().includes("rate limit") || 
+        rawMessage.toLowerCase().includes("exhausted") || 
+        rawMessage.toLowerCase().includes("429")
+    ) {
+        return {
+            message: "Gemini API quota exceeded or rate limited. Please wait a moment and try again, or configure your own Gemini API Key in the settings panel to bypass shared limits.",
+            status: 429
+        };
+    }
+
+    // Invalid API Keys (400 / 403)
+    if (
+        rawMessage.toLowerCase().includes("key not valid") || 
+        rawMessage.toLowerCase().includes("invalid key") || 
+        rawMessage.toLowerCase().includes("api key is invalid") ||
+        (status === 400 && rawMessage.toLowerCase().includes("key"))
+    ) {
+        return {
+            message: "The Gemini API Key provided is invalid. Please verify and update your key in the settings panel.",
+            status: 400
+        };
+    }
+
+    return { message: friendlyMessage, status };
+}
+
 export async function POST(req: NextRequest) {
     try {
         // 1. Parse request body safely
@@ -56,11 +96,8 @@ export async function POST(req: NextRequest) {
             }, { status: 502 });
         }
 
-        // Handle standard API errors from Gemini SDK safely
-        const errObj = error as Record<string, unknown> | null | undefined;
-        const status = (errObj && typeof errObj.status === "number") ? errObj.status : 500;
-        const message = error instanceof Error ? error.message : "An unexpected error occurred while generating the system design architecture.";
-
+        // Translate and return friendly error response
+        const { message, status } = translateGeminiError(error);
         return NextResponse.json({ error: message }, { status });
     }
 }
