@@ -15,7 +15,7 @@ function translateGeminiError(error: unknown): { message: string; status: number
     const status = (errObj && typeof errObj.status === "number") ? errObj.status : 500;
     const rawMessage = error instanceof Error ? error.message : String(error);
 
-    let friendlyMessage = rawMessage;
+    const friendlyMessage = rawMessage;
 
     // Quota limits / Rate limits (429)
     if (
