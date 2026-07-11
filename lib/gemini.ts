@@ -40,8 +40,8 @@ export async function generateSystemDesign(prompt: string, apiKey: string) {
                     responseMimeType: "application/json",
                     responseSchema: SystemDesignSchema.toJSONSchema() as unknown as Record<string, unknown>,
                     // // Token management limits:
-                    // maxOutputTokens: 3500, // High enough for full systems design, low enough to protect wallets
-                    // temperature: 0.2, // Reduces creative fluff and focuses on concise data
+                    maxOutputTokens: 3500, // High enough for full systems design, low enough to protect wallets
+                    temperature: 0.2, // Reduces creative fluff and focuses on concise data
                 },
             });
 
