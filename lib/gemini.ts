@@ -31,7 +31,6 @@ export async function generateSystemDesign(prompt: string, apiKey: string) {
 
     for (const modelName of modelsToTry) {
         try {
-            console.log(`[Gemini SDK] Attempting generation with model: ${modelName}`);
             const response = await ai.models.generateContent({
                 model: modelName,
                 contents: buildUserPrompt(prompt),
@@ -53,7 +52,6 @@ export async function generateSystemDesign(prompt: string, apiKey: string) {
             const rawJson = JSON.parse(cleanText);
             const systemDesign = SystemDesignSchema.parse(rawJson);
 
-            console.log(`[Gemini SDK] Success generating architecture with model ${modelName}`);
             return systemDesign;
         } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
