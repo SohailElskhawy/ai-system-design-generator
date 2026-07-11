@@ -28,7 +28,7 @@ An interactive, AI-powered software system design generator that transforms high
 - **💡 Dynamic Blueprint Synthesis**: Input any product idea or vision (up to 2,000 characters) and receive a comprehensive, structured architectural design.
 - **📊 Real-time Mermaid Diagrams**: Renders interactive, modern visual topology models (sequence flows or component architecture) directly in the browser using Mermaid.js.
 - **🔑 Bring Your Own Key (BYOK)**: Securely configure your own Gemini API Key directly in the UI settings panel (saved in your browser's local storage) to bypass shared limits.
-- **🔄 Robust Failover Engine**: If the primary Gemini model is throttled or unavailable, the backend automatically transitions through a fallback model sequence (e.g. `gemini-3.5-flash` ➡️ `gemini-2.5-flash` ➡️ `gemini-2.0-flash` ➡️ `gemini-2.0-flash-lite`) to guarantee reliable generation.
+- **🔄 Robust Failover Engine**: If the primary Gemini model is throttled or unavailable, the backend automatically transitions through a fallback model sequence (e.g. `gemini-3.5-flash` ➡️ `gemini-3.1-flash-lite`) to guarantee reliable generation.
 - **📋 Schema-verified Structuring**: Leverages Zod schema validation to ensure the LLM's response matches a strict structural contract with zero empty arrays or missing descriptions.
 - **💾 One-Click Markdown Export**: Downloader feature that converts the entire generated system architecture blueprint into a clean, fully formatted markdown document for easy integration with your project documentation.
 - **🎨 Premium Dark Aesthetics**: Designed with a sleek, minimalist Vercel-like dark theme using Tailwind CSS v4, custom grid backgrounds, subtle glow effects, and Framer Motion animations.

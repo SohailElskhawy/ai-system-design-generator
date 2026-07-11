@@ -22,11 +22,12 @@ export async function generateSystemDesign(prompt: string, apiKey: string) {
 
     // Ordered sequence of fallback models
     const modelsToTry = Array.from(new Set([
-        process.env.GOOGLE_MODEL || "gemini-2.5-flash",
-        "gemini-2.5-flash",
-        "gemini-2.0-flash",
-        "gemini-2.0-flash-lite"
+        process.env.GOOGLE_MODEL || "gemini-3.5-flash",
+        "gemini-3.5-flash",
+        "gemini-3.1-flash-lite"
     ]));
+
+    const errors: string[] = [];
 
     for (const modelName of modelsToTry) {
         try {
@@ -57,10 +58,11 @@ export async function generateSystemDesign(prompt: string, apiKey: string) {
         } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
             console.warn(`[Gemini SDK] Attempt failed with model ${modelName}:`, message);
+            errors.push(`${modelName}: ${message}`);
             lastError = error;
         }
     }
 
-    console.error("[Gemini SDK] All model generation attempts failed.");
-    throw lastError || new Error("Failed to generate system design with all configured models.");
+    console.error("[Gemini SDK] All model generation attempts failed:", errors.join(" | "));
+    throw lastError || new Error(`Failed to generate system design with all configured models. Errors: ${errors.join("; ")}`);
 }

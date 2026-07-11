@@ -30,6 +30,7 @@ export default function Home() {
 
   // API Key (BYOK), error, and generation status states
   const [apiKey, setApiKey] = useState("");
+  const [hasServerKey, setHasServerKey] = useState<boolean | null>(null);
   const [isApiComplete, setIsApiComplete] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,6 +46,17 @@ export default function Home() {
         setApiKey(stored);
       }, 0);
     }
+
+    // Check if server has an API key configured
+    fetch("/api/config")
+      .then((res) => res.json())
+      .then((data) => {
+        setHasServerKey(!!data.hasServerKey);
+      })
+      .catch((err) => {
+        console.error("Failed to check server API key status:", err);
+        setHasServerKey(false);
+      });
   }, []);
 
   const handleSetApiKey = (val: string) => {
@@ -55,6 +67,13 @@ export default function Home() {
   // Handle generating action
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
+
+    // Check if API key is present either client-side or server-side
+    const effectiveHasServerKey = hasServerKey !== null ? hasServerKey : false;
+    if (!apiKey.trim() && !effectiveHasServerKey) {
+      setError("Gemini API Key is missing. Please configure your API key in the top-right settings panel to proceed.");
+      return;
+    }
 
     setError(null);
     setOutput(null);
